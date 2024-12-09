@@ -47,6 +47,12 @@ public class PlayerController : MonoBehaviour
     private bool isDashing = false; // Define a boolean to determine the dash state
     private float dashTimeLeft = 0f; //Define the remaining dash time
 
+    public float minJumpHeight = 1f; // Define the minimum jump height and assign a value of 1
+    public float maxJumpHeight = 3f; // Define the maximum jump height and assign it to 3
+    public float jumpControlTime = 0.2f; // Define jump duration
+    private bool isJumping = false; // Define a boolean to determine the jump state
+    private float jumpTimeCounter = 0f; //Define the remaining jump time counter
+
     public void Start()
     {
         body.gravityScale = 0;
@@ -95,14 +101,6 @@ public class PlayerController : MonoBehaviour
         }
 
         MovementUpdate(playerInput);
-        JumpUpdate();
-
-        if (!isGrounded)
-            velocity.y += gravity * Time.deltaTime;
-        else
-            velocity.y = 0;
-
-        body.velocity = velocity;
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing && currentState != PlayerState.jumping)
         {
@@ -113,6 +111,20 @@ public class PlayerController : MonoBehaviour
         {
             DashUpdate();
         }
+        else
+        {
+            JumpUpdate();
+            if (!isGrounded && !isJumping)
+            {
+                velocity.y += gravity * Time.deltaTime;
+            }
+            else if (isGrounded && !isJumping)
+            {
+                velocity.y = 0;
+            }
+        }
+        body.velocity = velocity;
+        Debug.Log("body.velocity: " + body.velocity + ", velocity: " + velocity);
     }
     private void StartDash()
     {
@@ -180,9 +192,33 @@ public class PlayerController : MonoBehaviour
     {
         if (isGrounded && Input.GetButton("Jump"))
         {
-            velocity.y = initialJumpSpeed;
-            isGrounded = false;
+            StartJump();
         }
+        if (isJumping)
+        {
+            // If the player releases the jump button or the jump time runs out, ending the jump
+            if (Input.GetButtonUp("Jump") || jumpTimeCounter <= 0)
+            {
+                EndJump();
+            }
+            else
+            {
+                // Players hold down the jump button continuously to reduce the jump time counter
+                jumpTimeCounter -= Time.deltaTime;
+                velocity.y = Mathf.Lerp(velocity.y, Mathf.Sqrt(2 * Mathf.Abs(gravity) * maxJumpHeight),1 - (jumpTimeCounter / jumpControlTime));
+            }
+        }
+    }
+
+    private void StartJump()
+    {
+        isJumping = true;
+        jumpTimeCounter = jumpControlTime; // reset timer
+    }
+
+    private void EndJump()
+    {
+        isJumping = false;
     }
 
     private void CheckForGround()

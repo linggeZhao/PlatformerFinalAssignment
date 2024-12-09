@@ -1741,7 +1741,7 @@ MonoBehaviour:
   groundCheckSize: {x: 0.6, y: 0.1}
   groundCheckMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   isDead: 0
   dashSpeed: 15
   dashDuration: 0.2
