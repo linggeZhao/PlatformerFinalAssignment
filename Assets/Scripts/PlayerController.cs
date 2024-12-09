@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum PlayerDirection
 {
@@ -53,6 +53,13 @@ public class PlayerController : MonoBehaviour
     private bool isJumping = false; // Define a boolean to determine the jump state
     private float jumpTimeCounter = 0f; //Define the remaining jump time counter
 
+    public float wallCheckDistance = 0.5f; // Define the distance for wall detection and assign a value of 0.5
+    public LayerMask wallLayer; // Defines the Layer used to detect walls (after that choose "Wall" in the list)
+    public float wallJumpForceX = 5f; // Define the horizontal wall jumping force and assign it to 5.
+    public float wallJumpForceY = 7f; // Define the vertical wall jumping strength and assign it to 7.
+    private bool isTouchingWall = false; // Define a boolean to determine the player touch the wall or not
+    private bool isWallJumping = false; // Define a boolean to determine the player is wall-jumping or not
+
     public void Start()
     {
         body.gravityScale = 0;
@@ -69,6 +76,7 @@ public class PlayerController : MonoBehaviour
         previousState = currentState;
 
         CheckForGround();
+        CheckForWall();
 
         Vector2 playerInput = new Vector2();
         playerInput.x = Input.GetAxisRaw("Horizontal");
@@ -123,9 +131,60 @@ public class PlayerController : MonoBehaviour
                 velocity.y = 0;
             }
         }
+        
+        if (isTouchingWall && !isGrounded && Input.GetButtonDown("Jump"))
+        {
+            StartWallJump();
+        }
+
+        if (!isWallJumping)
+        {
+            JumpUpdate(); 
+        }
+
+        if (!isGrounded && !isJumping && !isWallJumping)
+        {
+            velocity.y += Physics2D.gravity.y * Time.deltaTime; // Applied Gravity
+        }
+
         body.velocity = velocity;
         Debug.Log("body.velocity: " + body.velocity + ", velocity: " + velocity);
     }
+
+    private void CheckForWall()
+    {
+        Vector2 position = transform.position;
+
+        // Send rays to the left and to the right, respectively, to detect the wall
+        bool wallLeft = Physics2D.Raycast(position, Vector2.left, wallCheckDistance, wallLayer);
+        bool wallRight = Physics2D.Raycast(position, Vector2.right, wallCheckDistance, wallLayer);
+
+        isTouchingWall = wallLeft || wallRight;
+        Debug.Log($"Touching wall: {isTouchingWall}");
+    }
+
+    private void StartWallJump()
+    {
+        isWallJumping = true; // Setting the wall jump status
+
+        // Set jump direction
+        float jumpDirection = isTouchingWall && Input.GetAxisRaw("Horizontal") > 0 ? -1 : 1;
+
+        // Setting the speed of wall jumping
+        velocity.x = wallJumpForceX * jumpDirection; // Horizontal velocity away from the wall
+        velocity.y = wallJumpForceY;                // Vertical jump speed
+
+        Debug.Log($"Wall Jump! Velocity: {velocity}");
+
+        // Delayed end of wall jump state
+        Invoke(nameof(EndWallJump), 0.2f);
+    }
+
+    private void EndWallJump()
+    {
+        isWallJumping = false; // End wall jump status
+    }
+
     private void StartDash()
     {
         isDashing = true;
