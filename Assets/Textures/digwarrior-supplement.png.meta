@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 45
+  spritePixelsToUnits: 42
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -970,6 +970,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: digwarrior-supplement_41
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 470
+        height: 454
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c7953696efc54047ab6920ceb42ba0b
+      internalID: 1779739549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -1017,6 +1038,7 @@ TextureImporter:
       digwarrior-supplement_39: 2144917931
       digwarrior-supplement_4: 1125315100
       digwarrior-supplement_40: 1919061480
+      digwarrior-supplement_41: 1779739549
       digwarrior-supplement_5: -1520356382
       digwarrior-supplement_6: -1476549556
       digwarrior-supplement_7: -492275340

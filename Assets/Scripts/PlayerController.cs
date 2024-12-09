@@ -42,6 +42,11 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 velocity;
 
+    public float dashSpeed = 15f; // Define dash speed and assign a value
+    public float dashDuration = 0.2f; // Define dash duration and assign a value
+    private bool isDashing = false; // Define a boolean to determine the dash state
+    private float dashTimeLeft = 0f; //Define the remaining dash time
+
     public void Start()
     {
         body.gravityScale = 0;
@@ -70,7 +75,7 @@ public class PlayerController : MonoBehaviour
         switch(currentState)
         {
             case PlayerState.dead:
-                // do nothing - we ded.
+                // do nothing - we dead.
                 break;
             case PlayerState.idle:
                 if (!isGrounded) currentState = PlayerState.jumping;
@@ -98,10 +103,54 @@ public class PlayerController : MonoBehaviour
             velocity.y = 0;
 
         body.velocity = velocity;
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing && currentState != PlayerState.jumping)
+        {
+            StartDash();
+        }
+
+        if (isDashing)
+        {
+            DashUpdate();
+        }
+    }
+    private void StartDash()
+    {
+        isDashing = true;
+        dashTimeLeft = dashDuration;
+
+        // Setting the dash speed (dash to right direction or left)
+        if (currentDirection == PlayerDirection.right)
+            velocity.x = dashSpeed;
+        else
+            velocity.x = -dashSpeed;
+    }
+
+    private void DashUpdate()
+    {
+        dashTimeLeft -= Time.deltaTime;
+
+        if (dashTimeLeft <= 0)
+        {
+            isDashing = false;
+
+            // Decelerate to normal speed after dash finished.
+            if (currentState == PlayerState.walking)
+            {
+                velocity.x = Mathf.Clamp(velocity.x, -maxSpeed, maxSpeed);
+            }
+            else
+            {
+                velocity.x = 0; // If the player stops moving, velocity should be 0. 
+            }
+        }
     }
 
     private void MovementUpdate(Vector2 playerInput)
     {
+        if (isDashing)
+            return; //return/skip this part if player is on the dash.
+
         if (playerInput.x < 0)
             currentDirection = PlayerDirection.left;
         else if (playerInput.x > 0)
